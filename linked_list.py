@@ -1,3 +1,3 @@
 class LinkedList:
-	class LLNode:
-		
+	
+class LLNode:
