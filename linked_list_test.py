@@ -1,8 +1,7 @@
-import testify
+from testify import *
 
 from linked_list import LinkedList
 from linked_list import LLNode
-from linked_list import InputError
 
 class NodeTest(TestCase):
 
@@ -10,7 +9,7 @@ class NodeTest(TestCase):
 	def setup(self):
 		self.next = LLNode()
 		self.prev = LLNode()
-		self.node = LLNode(prev=prev, next=next)
+		self.node = LLNode(prev=self.prev, next=self.next)
 
 	def test_contents_correct(self):
 		assert_equals(self.node.previous, self.prev)
@@ -27,10 +26,6 @@ class EmptyList(TestCase):
 		self.linked_list.add_to_head(node1)
 		assert_equals(self.linked_list.head, node1)
 
-	def test_move_to_front(self):
-		node1 = LLNode()
-		self.assertRaises(InputError, LinkedList.move_to_head, linked_list, node1)
-
 class ThreeElementList(TestCase):
 
 	@setup
@@ -38,8 +33,8 @@ class ThreeElementList(TestCase):
 		self.node1 = LLNode()
 		self.node2 = LLNode(prev=self.node1)
 		self.node3 = LLNode(prev=self.node2)
-		self.node1.set_next(self.node2)
-		self.node2.set_next(self.node3)
+		self.node1.next = self.node2
+		self.node2.next = self.node3
 		self.linked_list = LinkedList(self.node1)
 
 	def tset_add_to_head(self):
