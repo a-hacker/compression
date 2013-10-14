@@ -54,16 +54,25 @@ def compress_file(to_be_segmented, segment_length, output_location=None):
 				compression_value += 1
 				segment = ""
 
-	print_to_file(output_list, initial_legend, output_location)
+	print_to_file_or_console(output_list, initial_legend, output_location)
 
 def greater_than_zero_or_raise(segment_length):
+	"""
+	a method to throw an error if the segment_length is not large enough to segment the file
+	"""
 	if segment_length <= 0:
 		raise ValueError
 
 def segment_not_ready_to_be_added(segment, segment_length, letter, next):
+	"""
+	checks if our segment should be bigger by looking at the current letter and next letter and current length
+	"""
 	return len(segment) < segment_length and next != None and next.isalnum() and letter.isalnum()
 
-def print_to_file(output_list, initial_legend, output_location):
+def print_to_file_or_console(output_list, initial_legend, output_location):
+	"""
+	prints the desired outputs in the specified location
+	"""
 	output_list_as_string = ''
 	output_legend = ''
 

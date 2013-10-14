@@ -24,6 +24,9 @@ class EmptyFile(TestCase):
 		assert_equals(output_list, "\n")
 		assert_equals(initial_legend, "")
 
+	def test_invalid_segment_length(self):
+		self.assertRaises(ValueError, compression.compress_file, self.path, -4, 'output.txt')
+
 	@class_teardown
 	def tear_down(self):
 		os.remove('test_file.txt')
