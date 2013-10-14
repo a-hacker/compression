@@ -3,15 +3,14 @@ from collections import OrderedDict
 from linked_list import LinkedList
 from linked_list import LLNode
 
-def compress(to_be_segmented, segment_length, output_location):
+def compress_file(to_be_segmented, segment_length, output_location=None):
 	"""
 	A method to compress a file by segmenting the text then allocating an integer value to represent that segmented string
 	then optimize the compression by creating a list of positions of each segment at a given time 
 	"""
 
 	#Edge Case: we can't do anything if the segment_length doesn't make sense
-	if segment_length <= 0:
-		return
+	greater_than_zero_or_raise(segment_length)
 
 	position_list = LinkedList() 	#doubly linkedlist of nodes that correspond to a segment for easy reordering
 	segment = '' 					#to represent a section of text
@@ -36,9 +35,8 @@ def compress(to_be_segmented, segment_length, output_location):
 			text.seek(current_letter)
 			current_letter += 1
 
-			#print "Next is" + next
 			#check if the segment is ready to be added
-			if len(segment) < segment_length and next != None and next.isalnum() and letter.isalnum():
+			if segment_not_ready_to_be_added(segment, segment_length, letter, next):
 				continue
 			
 			#if segment in dictionary: create an LLNode and add last position to output_list
@@ -47,8 +45,6 @@ def compress(to_be_segmented, segment_length, output_location):
 				position_list.move_to_head(initial_legend[segment][0])
 				segment = ""
 
-
-			
 			#if segment not in dictionary: find it in head and add position to output_list
 			else:
 				new_node = LLNode()
@@ -58,13 +54,31 @@ def compress(to_be_segmented, segment_length, output_location):
 				compression_value += 1
 				segment = ""
 
-	output_file = open(output_location, 'w+b')
+	print_to_file(output_list, initial_legend, output_location)
+
+def greater_than_zero_or_raise(segment_length):
+	if segment_length <= 0:
+		raise ValueError
+
+def segment_not_ready_to_be_added(segment, segment_length, letter, next):
+	return len(segment) < segment_length and next != None and next.isalnum() and letter.isalnum()
+
+def print_to_file(output_list, initial_legend, output_location):
 	output_list_as_string = ''
 	output_legend = ''
+
 	for cell in output_list:
 		output_list_as_string += str(cell) + " "	
-	output_file.write(output_list_as_string + '\n') #print string object of output_list with spaces seperating numbers
+
 	for segment, compressed_value in initial_legend.iteritems():
 		output_legend += '(' + str(segment) + ": " + str(compressed_value[1]) + ") "
-	output_file.write(output_legend.replace('\n','\\n')) #print string of dictionary values in order
-	output_file.close()
+
+	if output_location != None:
+		output_file = open(output_location, 'w+b')
+		output_file.write(output_list_as_string + '\n') #print string object of output_list with spaces seperating numbers
+		output_file.write(output_legend.replace('\n','\\n')) #print string of dictionary values in order
+		output_file.close()
+
+	else:
+		print output_list_as_string
+		print output_legend.replace('\n', '\\n')

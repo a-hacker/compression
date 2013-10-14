@@ -35,7 +35,7 @@ class ThreeElementList(TestCase):
 		self.node3 = LLNode(prev=self.node2)
 		self.node1.next = self.node2
 		self.node2.next = self.node3
-		self.linked_list = LinkedList(self.node1)
+		self.linked_list = LinkedList(self.node1, self.node3)
 
 	def test_add_to_head(self):
 		node4 = LLNode()

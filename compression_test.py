@@ -18,7 +18,7 @@ class EmptyFile(TestCase):
 
 
 	def test_compression(self):
-		compression.compress(self.path, self.segment_length, 'output.txt')
+		compression.compress_file(self.path, self.segment_length, 'output.txt')
 		output_list = self.output.readline()
 		initial_legend = self.output.readline()
 		assert_equals(output_list, "\n")
@@ -41,7 +41,7 @@ class PunctuationOnly(TestCase):
 		self.segment_length = 3
 
 	def test_compression(self):
-		compression.compress(self.path, self.segment_length, 'output.txt')
+		compression.compress_file(self.path, self.segment_length, 'output.txt')
 		output_list = self.output.readline()
 		initial_legend = self.output.readline()
 		assert_equals(output_list, "0 1 2 1 3 4 \n")
@@ -64,7 +64,7 @@ class AlpaNumericalOnly(TestCase):
 		self.segment_length = 3
 
 	def test_compression(self):
-		compression.compress(self.path, self.segment_length, 'output.txt')
+		compression.compress_file(self.path, self.segment_length, 'output.txt')
 		output_list = self.output.readline()
 		initial_legend = self.output.readline()
 		assert_equals(output_list, "0 1 2 1 3 4 2 5 6 \n")
@@ -87,7 +87,7 @@ class RepeatingElements(TestCase):
 		self.segment_length = 3
 
 	def test_compression(self):
-		compressed_file = compression.compress(self.path, self.segment_length, 'output.txt')
+		compressed_file = compression.compress_file(self.path, self.segment_length, 'output.txt')
 		output_list = self.output.readline()
 		initial_legend = self.output.readline()
 		self.output.close()	
