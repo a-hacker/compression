@@ -16,7 +16,7 @@ class LinkedList:
 			node.position = 0
 		else:
 			self.update_positions(node.previous)
-			position = node.previous.position + 1
+			node.position = node.previous.position + 1
 
 	def add_to_head(self, node):
 		node.position = 0

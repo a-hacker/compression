@@ -37,7 +37,7 @@ class ThreeElementList(TestCase):
 		self.node2.next = self.node3
 		self.linked_list = LinkedList(self.node1)
 
-	def tset_add_to_head(self):
+	def test_add_to_head(self):
 		node4 = LLNode()
 		self.linked_list.add_to_head(node4)
 		assert_equals(self.linked_list.head, node4)
