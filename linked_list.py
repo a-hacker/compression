@@ -11,8 +11,8 @@ class LinkedList:
 		self.head = head
 		self.tail = tail
 
-	def update_positions(self, node=self.tail):
-		if node == head:
+	def update_positions(self, node):
+		if node == self.head:
 			node.position = 0
 		else:
 			self.update_positions(node.previous)
@@ -25,8 +25,9 @@ class LinkedList:
 			self.tail = node
 		else:
 			self.head.previous = node
+			node.next = self.head
 			self.head = node
-		self.update_positions()
+		self.update_positions(self.tail)
 
 	def move_to_head(self, node):
 		if self.head == node:
@@ -35,13 +36,15 @@ class LinkedList:
 			self.tail = node.previous
 			node.previous.next = None
 			node.next = self.head
+			self.head.previous = node
 			node.previous = None
 			self.head = node
-		else:
+		if self.head != node and self.tail != node:
 			node.previous.next = node.next
 			node.next.previous = node.previous
 			node.next = self.head
+			self.head.previous = node
 			node.previous = None
 			self.head = node
-		self.update_positions()
+		self.update_positions(self.tail)
 

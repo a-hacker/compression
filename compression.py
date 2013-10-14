@@ -51,11 +51,12 @@ def compress(to_be_segmented, segment_length, output_location):
 			if segment not in initial_legend:
 				new_node = LLNode()
 				position_list.add_to_head(new_node)
-				output_list.append(legend)
-				legend += 1
+				output_list.append(compression_value)
+				compression_value += 1
 				initial_legend[segment] = (new_node, compression_value)
 				segment = ""
 
-	output_file = open(output_location)
-	output_file.write(map(str, output_list)) #print string object of output_list with spaces seperating numbers
-	output_file.write(map(str, dictionary)) #print string of dictionary values in order
+	output_file = open(output_location, 'w+b')
+	output_file.write(str(map(str, output_list)) + '\n') #print string object of output_list with spaces seperating numbers
+	output_file.write(str(map(str, initial_legend))) #print string of dictionary values in order
+	output_file.close()
