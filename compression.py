@@ -51,7 +51,8 @@ def compress_file(to_be_segmented, segment_length, output_location=None):
 
 			letter = text.read(1)
 
-	(output_list_as_string, output_legend) = format_printouts(output_list, initial_legend)
+	(output_list_as_string, output_legend) = format_printouts(output_list, 
+															  initial_legend)
 
 	if not output_location:
 		print output_list_as_string
@@ -71,7 +72,7 @@ def greater_than_zero_or_raise(segment_length):
 		raise ValueError
 
 def segment_ready_to_be_added(segment, segment_length, letter, next):
-	return len(segment) >= segment_length or next == None or not next.isalnum() or not letter.isalnum()
+	return len(segment) >= segment_length or not next or not next.isalnum() or not letter.isalnum()
 
 def format_printouts(output_list, initial_legend):
 	output_list_as_string = ''
