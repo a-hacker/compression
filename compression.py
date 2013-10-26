@@ -21,12 +21,8 @@ def compress_file(to_be_segmented, segment_length, output_location=None):
 	current_letter = 1				#an interger to remember where in the text the current letter is for seeking back
 	with open(to_be_segmented) as text:
 
-		while True:
-			
-			#End Case (if the current letter is the end of the file, we break the while true loop)
-			letter = text.read(1)
-			if not letter:
-				break
+		letter = text.read(1)
+		while letter:
 
 			segment += letter
 
@@ -36,25 +32,36 @@ def compress_file(to_be_segmented, segment_length, output_location=None):
 			current_letter += 1
 
 			#check if the segment is ready to be added
-			if segment_not_ready_to_be_added(segment, segment_length, letter, next):
-				continue
-			
-			#if segment in dictionary: create an LLNode and add last position to output_list
-			if segment in initial_legend:
-				output_list.append(initial_legend[segment][0].position)
-				position_list.move_to_head(initial_legend[segment][0])
-				segment = ""
+			if segment_ready_to_be_added(segment, segment_length, letter, next):
+				
+				#if segment in dictionary: create an LLNode and add last position to output_list
+				if segment in initial_legend:
+					output_list.append(initial_legend[segment][0].position)
+					position_list.move_to_head(initial_legend[segment][0])
+					segment = ""
 
-			#if segment not in dictionary: find it in head and add position to output_list
-			else:
-				new_node = LLNode()
-				position_list.add_to_head(new_node)
-				output_list.append(compression_value)
-				initial_legend[segment] = (new_node, compression_value)
-				compression_value += 1
-				segment = ""
+				#if segment not in dictionary: find it in head and add position to output_list
+				else:
+					new_node = LLNode()
+					position_list.add_to_head(new_node)
+					output_list.append(compression_value)
+					initial_legend[segment] = (new_node, compression_value)
+					compression_value += 1
+					segment = ""
 
-	print_to_file_or_console(output_list, initial_legend, output_location)
+			letter = text.read(1)
+
+	(output_list_as_string, output_legend) = format_printouts(output_list, initial_legend)
+
+	if not output_location:
+		print output_list_as_string
+		print output_legend.replace('\n', '\\n')
+	else:
+		output_file = open(output_location, 'w+b')
+		output_file.write(output_list_as_string + '\n') #print string object of output_list with spaces seperating numbers
+		output_file.write(output_legend.replace('\n','\\n')) #print string of dictionary values in order
+		output_file.close()
+
 
 def greater_than_zero_or_raise(segment_length):
 	"""
@@ -63,16 +70,10 @@ def greater_than_zero_or_raise(segment_length):
 	if segment_length <= 0:
 		raise ValueError
 
-def segment_not_ready_to_be_added(segment, segment_length, letter, next):
-	"""
-	checks if our segment should be bigger by looking at the current letter and next letter and current length
-	"""
-	return len(segment) < segment_length and next != None and next.isalnum() and letter.isalnum()
+def segment_ready_to_be_added(segment, segment_length, letter, next):
+	return len(segment) >= segment_length or next == None or not next.isalnum() or not letter.isalnum()
 
-def print_to_file_or_console(output_list, initial_legend, output_location):
-	"""
-	prints the desired outputs in the specified location
-	"""
+def format_printouts(output_list, initial_legend):
 	output_list_as_string = ''
 	output_legend = ''
 
@@ -82,12 +83,4 @@ def print_to_file_or_console(output_list, initial_legend, output_location):
 	for segment, compressed_value in initial_legend.iteritems():
 		output_legend += '(' + str(segment) + ": " + str(compressed_value[1]) + ") "
 
-	if output_location != None:
-		output_file = open(output_location, 'w+b')
-		output_file.write(output_list_as_string + '\n') #print string object of output_list with spaces seperating numbers
-		output_file.write(output_legend.replace('\n','\\n')) #print string of dictionary values in order
-		output_file.close()
-
-	else:
-		print output_list_as_string
-		print output_legend.replace('\n', '\\n')
+	return (output_list_as_string, output_legend)
