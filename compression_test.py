@@ -188,7 +188,7 @@ class BadInputPath(TestCase):
 	def tear_down(self):
 		os.remove('test_file.txt')
 		os.remove('output.txt')
-
+  
 class StressTest(TestCase):
 	"""
 	A stress test for compression that reads all of Moby Dick
