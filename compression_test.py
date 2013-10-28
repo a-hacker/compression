@@ -97,6 +97,7 @@ class OneLetterFile(TestCase):
 		os.remove('test_file.txt')
 		os.remove('output.txt')
 
+#structured basis, good data
 class OnlyOneOfEachSegmentType(TestCase):
 
 	@setup
@@ -140,6 +141,7 @@ class PunctuationOnly(TestCase):
 		os.remove('test_file.txt')
 		os.remove('output.txt')
 
+#structured basis, good data
 class AlpaNumericalOnly(TestCase):
 
 	@setup
@@ -164,6 +166,7 @@ class AlpaNumericalOnly(TestCase):
 		os.remove('test_file.txt')
 		os.remove('output.txt')
 
+#structured basis, good data
 class RepeatingElements(TestCase):
 
 	@setup
@@ -211,6 +214,7 @@ class BadInputPath(TestCase):
 		os.remove('test_file.txt')
 		os.remove('output.txt')
 
+#structured basis, bad data
 class BadOutputPath(TestCase):
 
 	@setup
@@ -222,7 +226,6 @@ class BadOutputPath(TestCase):
 		self.segment_length = 3
 
 	def test_compression(self):
-		#compression.compress_file(self.path, self.segment_length, '')
 		p = subprocess.Popen(['python', '-c', "import compression; compression.compress_file('" + 
 							 self.path + "', " + str(self.segment_length) + ", '')"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		out, err = p.communicate()

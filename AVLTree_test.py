@@ -20,10 +20,10 @@ class AVLNodeTest(TestCase):
 		assert_equals(self.node.number_of_children(), 2)
 		assert_equals(self.left_child.number_of_children(), 0)
 
-	def test_left_or_right(self):
-		assert_equals(self.node.left_or_right(), 0)
-		assert_equals(self.left_child.left_or_right(), -1)
-		assert_equals(self.right_child.left_or_right(), 1)
+	def test_which_child(self):
+		assert_equals(self.node.which_child(), 0)
+		assert_equals(self.left_child.which_child(), -1)
+		assert_equals(self.right_child.which_child(), 1)
 
 	def test_return_only_child(self):
 		self.right_child.left_child = AVLNode(6)
@@ -36,6 +36,9 @@ class EmptyTree(TestCase):
 	def setup(self):
 		self.tree = AVLTree()
 
+	def test_nonempty_or_raise(self):
+		self.assertRaises(EmptyTreeException, AVLTree.nonempty_or_raise, self.tree)
+
 	def test_rightmost_node(self):
 		self.assertRaises(EmptyTreeException, AVLTree.rightmost_node, self.tree, self.tree.head)
 
@@ -47,8 +50,36 @@ class EmptyTree(TestCase):
 		self.assertRaises(EmptyTreeException, AVLTree.check_balance, self.tree, self.tree.head)
 
 	def test_lookup_when_added(self):
-		pass
+		self.assertRaises(EmptyTreeException, AVLTree.lookup_when_added, self.tree, 0)
 
+class OneNodeTree(TestCase):
+
+	@setup
+	def setup(self):
+		self.tree = AVLTree()
+		self.root = AVLNode(0)
+		self.tree.add_node(self.root)
+
+	def test_rightmost_node(self):
+		assert_equals(self.tree.rightmost_node(self.root), self.root)
+
+	def test_add_node(self):
+		self.tree.add_node(AVLNode(1))
+		assert_equals(self.tree.head, self.root)
+		assert_equals(self.tree.head.right_child.value, 1)
+		assert_equals(self.tree.head.balance_factor, 1)
+		assert_equals(self.tree.head.right_child.balance_factor, 0)
+		assert_equals(self.tree.size, 2)
+
+	def test_remove_node(self):
+		self.tree.remove_node(self.root)
+		assert_equals(self.tree.size, 0)
+		assert not self.tree.head
+
+
+	def test_lookup_when_added(self):
+		assert_equals(self.tree.lookup_when_added(0), 1)
+		assert_equals(self.tree.lookup_when_added(1), 0)
 
 class NominalCase(TestCase):
 	
@@ -88,22 +119,34 @@ class NominalCase(TestCase):
 	def test_remove_node_with_one_child(self):
 		self.tree.add_node(AVLNode(3))
 		self.tree.remove_node(self.right)
-		assert_equals(self.right.value, 3)
-
-	def test_check_balance(self):
-		pass
-
-	def test_rebalance(self):
-		pass
-
-	def test_rotate_left(self):
-		pass
-
-	def test_rotate_right(self):
-		pass	
+		assert_equals(self.right.value, 3)	
 
 	def test_lookup_when_added(self):
-		pass
+		assert_equals(self.tree.lookup_when_added(0), 2)
+		assert_equals(self.tree.lookup_when_added(1), 1)
+		assert_equals(self.tree.lookup_when_added(2), 0)
+
+class LargeTree(TestCase):
+
+	@setup
+	def setup(self):
+		self.tree = AVLTree()
+		node_value = 0
+		while node_value < 20:
+			self.tree.add_node(AVLNode(node_value))
+			node_value += 1
+
+	def test_rightmost_node(self):
+		assert_equals(self.tree.rightmost_node(self.tree.head).value, 20)
+
+	def test_remove_head(self):
+		self.tree.remove_node(self.tree.head)
+
+	def test_lookup_when_added(self):
+		node_value = 0
+		while node_value < 20:
+			assert_equals(self.tree.lookup_when_added(node_value), 20 - node_value)
+			node_value += 1
 
 if __name__ == "__main__":
 	run()

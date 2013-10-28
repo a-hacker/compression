@@ -28,7 +28,7 @@ class AVLNode():
 			return 2
 		return 1 
 
-	def left_or_right(self):
+	def which_child(self):
 		if self.parent:
 			if self.parent.left_child == self:
 				return -1
@@ -57,42 +57,42 @@ class AVLTree():
 		if self.size == 0:
 			raise EmptyTreeException
 
-	def rightmost_node(self, start):
+	def rightmost_node(self, start_node):
 		self.nonempty_or_raise()
 
-		node = start
-		while node.right_child:
-			node = node.right_child
-		return node
+		current_node = start_node
+		while current_node.right_child:
+			current_node = current_node.right_child
+		return current_node
 
-	def add_node(self, to_be_added):
+	def add_node(self, node_to_be_added):
 
 		"""
 		edge case if tree is empty
 		"""
 		if not self.size: 
-			self.head = to_be_added
+			self.head = node_to_be_added
 			self.size = 1
 			return
 		"""
 		add node to far right
 		"""
-		node = self.rightmost_node(self.head)
-		node.right_child = to_be_added
-		to_be_added.parent = node
+		largest_node = self.rightmost_node(self.head)
+		largest_node.right_child = node_to_be_added
+		node_to_be_added.parent = largest_node
 		self.size += 1
-		self.check_balance(to_be_added)
+		self.check_balance(node_to_be_added)
 
-	def delete_node(self, parent, child, left_or_right):
+	def delete_node(self, parent, child, which_child):
 		if not child:
-			if left_or_right == -1:
+			if which_child == -1:
 				parent.left_child = child
 				child.parent = parent
 			else:
 				parent.right_child = child
 				child.parent = parent
 		else:
-			if left_or_right == -1:
+			if which_child == -1:
 				parent.left_child = None
 			else:
 				parent.right_child = None
@@ -119,7 +119,7 @@ class AVLTree():
 			"""
 			remove node
 			"""
-			self.delete_node(node.parent, None, node.left_or_right())
+			self.delete_node(node.parent, None, node.which_child())
 			self.size -= 1
 			self.check_balance(parent)
 		"""
@@ -130,7 +130,7 @@ class AVLTree():
 			remove node and make the child the new child of the deleted node's parent
 			"""
 			child = node.__return_only_child__()
-			self.delete_node(node.parent, child, node.left_or_right())
+			self.delete_node(node.parent, child, node.which_child())
 			self.size -= 1
 			self.check_balance(child)
 		"""
@@ -161,7 +161,7 @@ class AVLTree():
 			return
 
 		if node.parent != None:
-			node.parent.balance_factor += node.left_or_right()
+			node.parent.balance_factor += node.which_child()
 
 			if node.parent.balance_factor:
 				self.check_balance(node.parent)
@@ -191,7 +191,7 @@ class AVLTree():
 		if self.head == node:
 		    self.head = new_root
 		else:
-		    if node.left_or_right == -1:
+		    if node.which_child == -1:
 		        node.parent.left_child = new_root
 		    else:
 		        node.parent.right_child = new_root
@@ -209,7 +209,7 @@ class AVLTree():
 		if self.head == node:
 		    self.head = new_root
 		else:
-		    if node.left_or_right == 1:
+		    if node.which_child == 1:
 		            node.parent.right_child = new_root
 		    else:
 		        node.parent.left_child = new_root
@@ -218,10 +218,10 @@ class AVLTree():
 		node.balance_factor = node.balance_factor + 1 + max(new_root.balance_factor, 0)
 		new_root.balance_factor = new_root.balance_factor + 1 + min(node.balance_factor, 0)
 
-	def go_further(self, current_value, end_value):
-		return current_value.left_or_right() == -1 or current_value == self.head or current_value.parent.value < end_value.value
+	def go_left(self, current_position, end_value):
+		return current_position.which_child() == -1 or current_position == self.head or current_position.parent.value < end_value
 
-	def update_position(self, child):
+	def update_value(self, child):
 		"""
 		 -1 if no child(-2 if there's a child)
 		"""
@@ -230,36 +230,37 @@ class AVLTree():
 		else:
 			return -2
 
-	def lookup_when_added(self, end_value, current_position=None, current_value=None):
+	def lookup_when_added(self, end_value, current_value=None, current_position=None):
 		"""
 		a method to lookup when the node was added based on the current position it occupies
 		"""
 
+		self.nonempty_or_raise()
 		"""
 		current_position = size of tree if no argument given
 		current_value = rightmost node's value if no argument given
 		"""
-		if not current_value:
-			current_value = self.rightmost_node(self.head)
-			current_position = self.size
+		if not current_position:
+			current_position = self.rightmost_node(self.head)
+			current_value = self.size
 
 		if current_value == end_value:
-			return self.size - current_position
+			return self.size - current_value
 
 		else:
 			"""
 			if current node is a left child or current node is the head or parent's value < value we're looking for
 			"""
-			if self.go_further(current_value, end_value):
+			if self.go_left(current_position, end_value):
 				"""
 				current position = current_position -1 if left child has no right child(-2 if there's a right child)
 				"""
-				current_position += self.update_position(current_value.left_child.right_child)
-				self.lokup_when_added(end_value, current_position, current_value.left_child)
+				current_value += self.update_value(current_position.left_child.right_child)
+				self.lookup_when_added(end_value, current_value, current_position.left_child)
 
 			else:
 				"""
 				current_position = current_position -1 if current node doesn't have a left child(-2 if there's a left child)
 				"""
-				current_position += self.update_position(current_value.left_child)
-				self.lokup_when_added(end_value, current_position, current_value.parent)
+				current_value += self.update_value(current_position.left_child)
+				self.lookup_when_added(end_value, current_value, current_position.parent)

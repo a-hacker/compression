@@ -3,7 +3,7 @@ from collections import OrderedDict
 from linked_list import LinkedList
 from linked_list import LLNode
 
-def compress_file(to_be_segmented, segment_length, output_location=None):
+def compress_file(file_to_be_segmented, segment_length, output_location=None):
 	"""
 	A method to compress a file by segmenting the text then allocating an integer value to represent that segmented string
 	then optimize the compression by creating a list of positions of each segment at a given time 
@@ -18,21 +18,21 @@ def compress_file(to_be_segmented, segment_length, output_location=None):
 	output_list = [] 				#the compressed text as a list of positions of compressed values from position_list
 
 	compression_value = 0			#an integer to represent a segment counting from 0 up by when it was added
-	current_letter = 1				#an interger to remember where in the text the current letter is for seeking back
-	with open(to_be_segmented) as text:
+	current_letter_index = 1		#an interger to remember where in the text the current letter is for seeking back
+	with open(file_to_be_segmented) as text:
 
-		letter = text.read(1)
-		while letter:
+		current_letter = text.read(1)
+		while current_letter:
 
-			segment += letter
+			segment += current_letter
 
 			
-			next = text.read(1)
-			text.seek(current_letter)
-			current_letter += 1
+			next_letter = text.read(1)
+			text.seek(current_letter_index)
+			current_letter_index += 1
 
 			#check if the segment is ready to be added
-			if segment_ready_to_be_added(segment, segment_length, letter, next):
+			if segment_ready_to_be_added(segment, segment_length, current_letter, next_letter):
 				
 				#if segment in dictionary: create an LLNode and add last position to output_list
 				if segment in initial_legend:
@@ -49,7 +49,7 @@ def compress_file(to_be_segmented, segment_length, output_location=None):
 					compression_value += 1
 					segment = ""
 
-			letter = text.read(1)
+			current_letter = text.read(1)
 
 	(output_list_as_string, output_legend) = format_printouts(output_list, 
 															  initial_legend)
@@ -71,8 +71,8 @@ def greater_than_zero_or_raise(segment_length):
 	if segment_length <= 0:
 		raise ValueError
 
-def segment_ready_to_be_added(segment, segment_length, letter, next):
-	return len(segment) >= segment_length or not next or not next.isalnum() or not letter.isalnum()
+def segment_ready_to_be_added(segment, segment_length, letter, next_letter):
+	return len(segment) >= segment_length or not next_letter or not next_letter.isalnum() or not letter.isalnum()
 
 def format_printouts(output_list, initial_legend):
 	output_list_as_string = ''
@@ -86,5 +86,3 @@ def format_printouts(output_list, initial_legend):
 
 	output_legend = output_legend.replace('\n','\\n')
 	return (output_list_as_string, output_legend)
-
-	#a change for the makefile
