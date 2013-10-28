@@ -56,11 +56,11 @@ def compress_file(to_be_segmented, segment_length, output_location=None):
 
 	if not output_location:
 		print output_list_as_string
-		print output_legend.replace('\n', '\\n')
+		print output_legend
 	else:
 		output_file = open(output_location, 'w+b')
 		output_file.write(output_list_as_string + '\n') #print string object of output_list with spaces seperating numbers
-		output_file.write(output_legend.replace('\n','\\n')) #print string of dictionary values in order
+		output_file.write(output_legend) #print string of dictionary values in order
 		output_file.close()
 
 
@@ -84,4 +84,5 @@ def format_printouts(output_list, initial_legend):
 	for segment, compressed_value in initial_legend.iteritems():
 		output_legend += '(' + str(segment) + ": " + str(compressed_value[1]) + ") "
 
+	output_legend = output_legend.replace('\n','\\n')
 	return (output_list_as_string, output_legend)

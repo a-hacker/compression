@@ -1,4 +1,5 @@
 import os
+import subprocess
 from collections import OrderedDict
 
 from testify import *
@@ -25,7 +26,7 @@ class HelperMethods(TestCase):
 
 	def test_segment_ready_to_be_added(self):
 
-		#structured basis, good data, data flow
+		#structured basis, good data
 		assert not compression.segment_ready_to_be_added('aaa', 4, 'a', 'b')
 		assert compression.segment_ready_to_be_added('aaa', 2, 'a', 'b')
 		assert compression.segment_ready_to_be_added('aaa', 4, '', 'b')
@@ -36,7 +37,10 @@ class HelperMethods(TestCase):
 		#structured basis, good data
 		assert_equals(compression.format_printouts(self.output_list, self.initial_legend),
 					  ("0 1 2 1 2 3 4 5 1 2 1 ", "(a: 0) (b: 1) (c: 2) (d: 3) (e: 4) "))
-		#structured basis, boundary
+		assert_equals(compression.format_printouts(self.output_list, OrderedDict()),
+					  ("0 1 2 1 2 3 4 5 1 2 1 ", ""))
+		assert_equals(compression.format_printouts([], self.initial_legend),
+					  ("", "(a: 0) (b: 1) (c: 2) (d: 3) (e: 4) "))
 		assert_equals(compression.format_printouts([], OrderedDict()), ('', ''))
 
 #boundary
@@ -206,8 +210,29 @@ class BadInputPath(TestCase):
 	def tear_down(self):
 		os.remove('test_file.txt')
 		os.remove('output.txt')
+
+class BadOutputPath(TestCase):
+
+	@setup
+	def setup(self):
+		self.test_file = open('test_file.txt', 'wb+')
+		self.test_file.write("abc ab abc abc. ab. d\n")
+		self.test_file.close()
+		self.path = os.path.abspath('test_file.txt')
+		self.segment_length = 3
+
+	def test_compression(self):
+		#compression.compress_file(self.path, self.segment_length, '')
+		p = subprocess.Popen(['python', '-c', "import compression; compression.compress_file('" + 
+							 self.path + "', " + str(self.segment_length) + ", '')"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		out, err = p.communicate()
+		assert_equals(out, "0 1 2 1 2 1 1 3 2 3 2 2 4 5 \n(abc: 0) ( : 1) (ab: 2) (.: 3) (d: 4) (\\n: 5) \n")
+
+	@class_teardown
+	def tear_down(self):
+		os.remove('test_file.txt')
   
-class StressTest():
+class StressTest(TestCase):
 	"""
 	A stress test for compression that reads all of Moby Dick
 	I cannot say what the output for something this big should be
