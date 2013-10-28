@@ -6,7 +6,7 @@ This tree is meant to only add nodes with strictly increasing values.
 
 from math import fabs
 
-class EmptyTreeException(TypeError):
+class EmptyTreeException(ValueError):
 	pass
 
 class AVLNode():
@@ -68,7 +68,7 @@ class AVLTree():
 	def add_node(self, to_be_added):
 
 		"""
-			edge case if tree is empty
+		edge case if tree is empty
 		"""
 		if not self.size: 
 			self.head = to_be_added
@@ -81,10 +81,21 @@ class AVLTree():
 		node.right_child = to_be_added
 		to_be_added.parent = node
 		self.size += 1
-		"""
-		check balance
-		"""
 		self.check_balance(to_be_added)
+
+	def delete_node(self, parent, child, left_or_right):
+		if not child:
+			if left_or_right == -1:
+				parent.left_child = child
+				child.parent = parent
+			else:
+				parent.right_child = child
+				child.parent = parent
+		else:
+			if left_or_right == -1:
+				parent.left_child = None
+			else:
+				parent.right_child = None
 
 	def remove_node(self, node):
 		"""
@@ -108,16 +119,7 @@ class AVLTree():
 			"""
 			remove node
 			"""
-			parent = node.parent
-			if node.left_or_right() == -1:
-				node.parent.left_child = None
-				node.parent = None
-			elif node.left_or_right() == 1:
-				node.parent.right_child = None
-				node.parent = None
-			"""
-			check balance
-			"""
+			self.delete_node(node.parent, None, node.left_or_right())
 			self.size -= 1
 			self.check_balance(parent)
 		"""
@@ -128,15 +130,7 @@ class AVLTree():
 			remove node and make the child the new child of the deleted node's parent
 			"""
 			child = node.__return_only_child__()
-			if node.left_or_right() == -1:
-				node.parent.left_child = child
-				child.parent = node.parent
-			if node.left_or_right() == 1:
-				child.parent = node.parent
-				node.parent.right_child = child
-			"""
-			check balance
-			"""
+			self.delete_node(node.parent, child, node.left_or_right())
 			self.size -= 1
 			self.check_balance(child)
 		"""
@@ -224,6 +218,18 @@ class AVLTree():
 		node.balance_factor = node.balance_factor + 1 + max(new_root.balance_factor, 0)
 		new_root.balance_factor = new_root.balance_factor + 1 + min(node.balance_factor, 0)
 
+	def go_further(self, current_value, end_value):
+		return current_value.left_or_right() == -1 or current_value == self.head or current_value.parent.value < end_value.value
+
+	def update_position(self, child):
+		"""
+		 -1 if no child(-2 if there's a child)
+		"""
+		if not child:
+			return -1
+		else:
+			return -2
+
 	def lookup_when_added(self, end_value, current_position=None, current_value=None):
 		"""
 		a method to lookup when the node was added based on the current position it occupies
@@ -231,49 +237,29 @@ class AVLTree():
 
 		"""
 		current_position = size of tree if no argument given
-		"""
-		if not current_position:
-			current_position = self.size
-		"""
 		current_value = rightmost node's value if no argument given
 		"""
 		if not current_value:
 			current_value = self.rightmost_node(self.head)
-		"""
-		if current_value is the value we're looking for
-		"""
+			current_position = self.size
+
 		if current_value == end_value:
-			"""
-			return size of tree - current_position
-			"""
 			return self.size - current_position
 
 		else:
 			"""
 			if current node is a left child or current node is the head or parent's value < value we're looking for
 			"""
-			if current_value.left_or_right() == -1 or current_value == self.head or current_value.parent.value < end_value.value:
+			if self.go_further(current_value, end_value):
 				"""
 				current position = current_position -1 if left child has no right child(-2 if there's a right child)
 				"""
-				if not current_value.left_child.right_child:
-					current_position -= 1
-				else:
-					current_position -= 2
-				""" 
-				lokup_when_added(left child)
-				"""
+				current_position += self.update_position(current_value.left_child.right_child)
 				self.lokup_when_added(end_value, current_position, current_value.left_child)
 
 			else:
 				"""
 				current_position = current_position -1 if current node doesn't have a left child(-2 if there's a left child)
 				"""
-				if not current_value.left_child:
-					current_position -= 1
-				else:
-					current_position -= 2
-				"""
-				lokup_when_added(parent)
-				"""
+				current_position += self.update_position(current_value.left_child)
 				self.lokup_when_added(end_value, current_position, current_value.parent)
