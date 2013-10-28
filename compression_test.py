@@ -93,6 +93,24 @@ class OneLetterFile(TestCase):
 		os.remove('test_file.txt')
 		os.remove('output.txt')
 
+class OnlyOneOfEachSegmentType(TestCase):
+
+	@setup
+	def setup(self):
+		self.test_file = open('test_file.txt', 'w')
+		self.test_file.write('abcb.v') #segments abc b . v
+		self.test_file.close()	
+		self.path = os.path.abspath('test_file.txt')
+		self.output = open("output.txt", 'w+b')
+		self.valid_segment_length = 3
+
+	def test_compression(self):
+		compression.compress_file(self.path, self.valid_segment_length, 'output.txt')
+		output_list = self.output.readline()
+		initial_legend = self.output.readline()
+		assert_equals(output_list, "0 1 2 3 \n")
+		assert_equals(initial_legend, "(abc: 0) (b: 1) (.: 2) (v: 3) ")
+
 #structured basis, good data
 class PunctuationOnly(TestCase):
 
@@ -189,7 +207,7 @@ class BadInputPath(TestCase):
 		os.remove('test_file.txt')
 		os.remove('output.txt')
   
-class StressTest(TestCase):
+class StressTest():
 	"""
 	A stress test for compression that reads all of Moby Dick
 	I cannot say what the output for something this big should be
